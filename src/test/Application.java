@@ -41,7 +41,7 @@ public class Application {
             Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-        
+    
     public void insert(){
         try {
             int n = statement.executeUpdate("insert into"+tableUsers +" values ('prenume', 'nume', 'email@ceva.com', 'user3', 'altaparola');");
@@ -79,10 +79,30 @@ public class Application {
         
         return validData;
     }
-     
-    public static void main(String[] args) {
     
-        Application app = new Application();
+    public boolean login() {
+        
+        boolean ok;
+        String userName;
+        String password;
+        Scanner sc= new Scanner(System.in);
+        
+        System.out.println("Enter your User Name: ");
+        userName=sc.next();
+        System.out.println("Enter your Password: ");
+        password= sc.next();
+        
+        ok = search(userName,password);//search data for login
+            
+        if(ok==true) 
+            return true;
+        return false;
+        
+        
+    }
+    
+    public void startApplication(){
+        
         int state;
        
         Scanner sc= new Scanner(System.in);
@@ -92,16 +112,23 @@ public class Application {
         state=sc.nextInt();
         
         if(state==1){// user wants to login 
-            boolean ok;
-            String userName;
-            String password;
-            
-            System.out.println("Enter your User Name: ");
-            userName=sc.next();
-            password= sc.next();
-            ok=search(userName,password);//search data for login
-            
+            if (login()==true)
+            {
+                System.out.println("Bun venit!");
+                //userProfile();
+            }
+            else {
+                System.out.println("User sau parola incorecta!");
+                startApplication();
+            }
+                
         }
+    }
+    
+    public static void main(String[] args) {
+    
+        Application app = new Application();
+       // app.startApplication();
         
     }
     
