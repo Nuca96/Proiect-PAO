@@ -64,11 +64,11 @@ public class Test {
         }
     }
 
-   
+   /*
     public static void main(String[] args) {
         Test T=new Test();
         T.insert();
         T.select_star();
-    }
+    }*/
     
 }
