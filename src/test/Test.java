@@ -56,9 +56,9 @@ public class Test {
     public void select_star(){
         try {
             ResultSet res =st.executeQuery("select * from user;");
-            InputStream is;
-            Array a=res.getArray(1);
-            System.out.println("blablabal");
+            while (res.next()){
+                System.out.println(res.getString("firstname") + " " + res.getString("lastname") + " " + res.getString("username") + " " + res.getString("password") + " " + res.getString("email"));
+            }
         } catch (SQLException ex) {
             Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);
         }
