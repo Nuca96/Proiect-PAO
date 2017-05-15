@@ -1,0 +1,3 @@
+Am initializat conexiunea la BD locala
+se poate introduce o inregistrare noua
+am eroare cand incerc sa afisez o inregistrare (trebuie sa mai lucrez la asta)
