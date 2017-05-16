@@ -13,7 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 /**
  *
- * @author mpop
+ * @author mpop 
  */
 public class Application {
     
@@ -30,7 +30,7 @@ public class Application {
             Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
         }
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pao", "root", "ciscoconpass");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pao", "root", "");
         } catch (SQLException ex) {
             Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -117,10 +117,18 @@ public class Application {
             try {
                 ResultSet res =statement.executeQuery("select * from users;");
                 while (res.next()){
-                    if(username.equals( res.getString("username"))) 
+                    if(username.equals( res.getString("username"))) {
                         ok = true;
-                    if(email.equals(res.getString("email"))) 
+                        System.out.println("User already exist");
+                    }
+                    if(email.equals(res.getString("email"))){ 
+                        System.out.println("This email is taken ");
                         ok = true;
+                    }
+                    if(validPassword(password)==false){
+                        System.out.println("Password mast have 6 character , a number and a capital");
+                        ok=true;
+                    }
                 }
 
             } catch (SQLException ex) {
@@ -148,6 +156,27 @@ public class Application {
             }
                 
         }
+    }
+    
+    public boolean validPassword(String password) {
+
+        if (password.length() < 6)
+            return false;
+
+        boolean validLitera = false;
+        for (int i = 0; i < password.length(); i++)
+            if ((password.charAt(i) >= 'A') && (password.charAt(i) <= 'Z'))
+                validLitera = true;
+
+        boolean validCifra = false;
+        for (int i = 0; i < password.length(); i++)
+            if ((password.charAt(i) >= '0') && (password.charAt(i) <= '9'))
+                validCifra = true;
+
+        if ((validLitera == false) || (validCifra == false))
+            return false;
+
+        return true;
     }
     
     private String searchSpecificUser(String partOfName){
@@ -185,6 +214,8 @@ public class Application {
     }
     
     private void printComments(){
+        
+        
         //prints the comments for currentUser
         System.out.println("Comments: ");
         try {
@@ -200,9 +231,11 @@ public class Application {
     }
     
     private void leaveComment(String user){
+        
+        Scanner ss = new Scanner(System.in);
         //current user wants to leave a comment to user user     
         System.out.println("please insert in single line your comment for "+user);
-        String comm = sc.nextLine();
+        String comm = ss.nextLine();
         try {
             int n = statement.executeUpdate("insert into comments(sender, recever, comment) values ('"+currentUser+"', '"+user+"', '"+comm+"');");
             if (n==1) {
@@ -260,7 +293,10 @@ public class Application {
     
     private void changeDescription(){
         System.out.println("Please insert in a line your new description");
-        String newDescription = sc.nextLine();
+        Scanner ss= new Scanner(System.in);
+        String newDescription;
+        newDescription= ss.nextLine();
+        
         String sql="update users set description = '"+ newDescription + "' where username = '" + currentUser+"';";
         try {
             int n = statement.executeUpdate(sql);
@@ -313,7 +349,7 @@ public class Application {
         printComments();
         System.out.println("Press 1 for search for an account");
         System.out.println("Press 2 for change description");
-        System.out.println("Press 2 for change password");
+        System.out.println("Press 3 for change password");
         System.out.println("Press 4 for logout");
         state = sc.nextInt();
         switch(state){
