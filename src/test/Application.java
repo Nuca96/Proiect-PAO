@@ -1,10 +1,6 @@
 
 package test;
 
-import java.io.InputStream;
-import java.sql.Array;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -17,27 +13,15 @@ import java.util.logging.Logger;
  */
 public class Application {
     
-    private Connection connection;
     private Statement statement;
     private Scanner sc;
     private String currentUser;
-    
+    private SqlCommands sql;
     public Application(){
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pao", "root", "");
-        } catch (SQLException ex) {
-            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            statement=connection.createStatement();
-        } catch (SQLException ex) {
-            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
+        sql=new SqlCommands();
+        statement = sql.conexion();
+        
         sc= new Scanner(System.in);
     }
     
@@ -120,7 +104,7 @@ public class Application {
                         currentUser=username;
                         
                         UserProfile user= new UserProfile(currentUser);
-                        user.userProfile();
+                        user.profile();
                     }
                     else{
                         System.out.println("error");
@@ -131,10 +115,6 @@ public class Application {
             }
         }
     }
-    
-   
-    
-    
     
     public void startApplication(){
         
@@ -151,7 +131,7 @@ public class Application {
                 {
                     System.out.println("Welcome!");
                     UserProfile user=new UserProfile(currentUser);
-                    user.userProfile();
+                    user.profile();
                 }
 
                 else {

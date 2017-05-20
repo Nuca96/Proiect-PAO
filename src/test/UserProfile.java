@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,33 +21,22 @@ public class UserProfile {
     private Statement statement;
     private Scanner sc;
     private String currentUser;
+    private SqlCommands sql;
     
     public UserProfile(String currentUser){
         
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pao", "root", "");
-        } catch (SQLException ex) {
-            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            statement=connection.createStatement();
-        } catch (SQLException ex) {
-            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
+        sql=new SqlCommands();
+        statement=sql.conexion();
         sc=new Scanner(System.in);
         this.currentUser=currentUser;
+    
     }
     
-    public void userProfile(){
+    public void profile(){
             int state;
-            showProfile(currentUser);
+            //showProfile(currentUser);
             printComments();
+            
             System.out.println("Press 1 for search for an account");
             System.out.println("Press 2 for change description");
             System.out.println("Press 3 for change password");
@@ -71,13 +61,13 @@ public class UserProfile {
                     break;
                 }
                 default:{
-                    userProfile();
+                    profile();
                 }
             }
     }
     
     public void showProfile(String thisUser){
-            //prints user's info for thisUser (except the password and the comments)
+        //prints user's info for thisUser (except the password and the comments)
         try {
             ResultSet res =statement.executeQuery("select * from users where username = '" +thisUser+"';");
             if (res.next()){
@@ -92,32 +82,60 @@ public class UserProfile {
         }
         
     }
-
+    
     public String searchSpecificUser(String partOfName){
+    
+        boolean OK=true;
+        //ResultSet res;
+        ArrayList<String> users = new ArrayList<>();
+        int index=0; // Index of ArrayList with strings
         try {
-            ResultSet res =statement.executeQuery("select * from users;");
+            
+            ResultSet res =statement.executeQuery("select * from users where username = '"+partOfName+"' ;");
             while (res.next()){
                 if(partOfName.equals(res.getString("username"))){
                     return partOfName;
                 }
             }
-            res = statement.executeQuery("select * from users;");
-            boolean OK=true;
+            
+            res = statement.executeQuery("select * from users where firstname = '"+partOfName+"' ;");
+      
             while (res.next()){
-                if(partOfName.equals(res.getString("firstname")) || partOfName.equals(res.getString("email")) || partOfName.equals(res.getString("lastname"))){
+                if(partOfName.equals(res.getString("firstname"))){
                     if(OK){
                         OK=false;
                         System.out.println("There are one ore more results for your search\nPlease insert one of the following usernames:\n");
                     }
-                    System.out.println(res.getString("username"));
+                    System.out.print(res.getString("firstname")+" is first name for account : "+res.getString("username"));
+                    System.out.println("\nPress "+index +" for this user\n\n ");
+                    users.add(index,res.getString("username"));
+                    index++;
+                    
                 }
                 
             }
+            
+            res = statement.executeQuery("select * from users where lastname = '"+partOfName+"' ;");
+            while (res.next()){
+                if(partOfName.equals(res.getString("lastname"))){
+                    if(OK){
+                        OK=false;
+                        System.out.println("There are one ore more results for your search\nPlease insert one of the following usernames:\n");
+                    }
+                    
+                    System.out.print(res.getString("lastname")+" is last name for account : "+res.getString("username"));
+                    System.out.println("\nPress "+index +" for this user\n\n " );
+                    users.add(index,res.getString("username"));
+                    index++;
+                }
+                
+            }
+            
             if (OK){
                 return "";
             }
             else{
-                String username=sc.next();
+                String username=users.get(sc.nextInt());
                 return searchSpecificUser(username);
             }
             
@@ -127,6 +145,30 @@ public class UserProfile {
         return "";
     }
     
+    public void searchForAnother(){
+        System.out.println("Enter a username, an email or an name of a friend");
+        System.out.println("or type 'mine' for returning to your profile");
+        String forSearch;
+        forSearch=sc.next();
+        String friendsUsername=searchSpecificUser(forSearch);
+        
+        
+        if (friendsUsername.equals("mine")){
+            profile();
+        }
+        else{
+            if (friendsUsername.isEmpty()){
+                System.out.println("There is no such user!");
+                searchForAnother();
+            }
+            else{
+                friendsProfile(friendsUsername);
+            }
+            
+        }
+       
+    }
+   
     public void printComments(){
         
         
@@ -143,6 +185,7 @@ public class UserProfile {
         }
         
     }
+
     
     public void leaveComment(String user){
         
@@ -165,7 +208,7 @@ public class UserProfile {
     }
     
     public void friendsProfile(String user){
-        showProfile(user);
+        //showProfile(user);
         System.out.println("Press 1 for a comment");
         System.out.println("Press 2 for return to your profile");
         int state=sc.nextInt();
@@ -175,7 +218,7 @@ public class UserProfile {
                 break;
             }
             case(2):{
-                userProfile();
+                profile();
             }
             default:{
                 friendsProfile(user);
@@ -183,27 +226,6 @@ public class UserProfile {
         }
     }
     
-    public void searchForAnother(){
-        System.out.println("Enter a username, an email or an name of a friend");
-        System.out.println("or type 'mine' for returning to your profile");
-        String forSearch;
-        forSearch=sc.next();
-        String friendsUsername=searchSpecificUser(forSearch);
-        if (friendsUsername.equals("mine")){
-            userProfile();
-        }
-        else{
-            if (friendsUsername.isEmpty()){
-                System.out.println("There is no such user!");
-                searchForAnother();
-            }
-            else{
-                friendsProfile(friendsUsername);
-            }
-            
-        }
-        
-    }
     
     public void changeDescription(){
         System.out.println("Please insert in a line your new description");
@@ -223,7 +245,7 @@ public class UserProfile {
         } catch (SQLException ex) {
             Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
         }
-        userProfile();
+        profile();
     }
     
     public void changePassword(){
@@ -254,7 +276,7 @@ public class UserProfile {
         } catch (SQLException ex) {
             Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
         }
-        userProfile();
+        profile();
     }
     
     

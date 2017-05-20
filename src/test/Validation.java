@@ -95,10 +95,10 @@ public class Validation {
     
     public boolean validName(String name){
         
-        boolean valid=true;    //I suspect taht name is corect and search incorect characters (numbers or special characters)
+        boolean valid=false;    //I suspect taht name is corect and search incorect characters (numbers or special characters)
         for(int i=0;i<name.length();i++) {   
-            if((name.charAt(i)>='A')&&(name.charAt(i)<='Z')||(name.charAt(i)>='a')&&(name.charAt(i)<='z'))
-                valid=false;
+            if((name.charAt(i)>='A'&&name.charAt(i)<='Z')||(name.charAt(i)>='a'&&name.charAt(i)<='z'))
+                valid=true;
         }
         return valid;   
         
